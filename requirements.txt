@@ -1,10 +1,23 @@
-flask==2.3.3
-flask-sqlalchemy==3.0.5
+# Interface
+streamlit==1.30.0
+
+# Banco de dados
+sqlalchemy==2.0.25  # ORM para SQLite, mais organizado que sqlite3 puro
+
+# Análise de dados
 pandas==2.0.3
+
+# Visualização (opcional para dashboards ou relatórios gráficos)
 matplotlib==3.7.2
 plotly==5.16.1
+
+# Utilitários (para ambiente e requisições externas)
 python-dotenv==1.0.0
 requests==2.31.0
+
+# Relatórios e templates (se quiser gerar HTML ou PDFs customizados)
 jinja2==3.1.2
+
+# Dev (caso use notebook para testes ou análises pontuais)
 jupyter==1.0.0
 notebook==7.0.3
