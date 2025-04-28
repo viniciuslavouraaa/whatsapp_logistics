@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 st.title('Chatbot de Agênciamento de Cargas')
 
@@ -31,10 +32,15 @@ elif st.session_state['flow_step'] == 'empresa_info':
     st.write('Aqui vamos coletar algumas informações da empresa')
     
     with st.form(key='empresa_form'):
+        nome_empresa = st.text_input('Qual o nome da sua empresa?')
         cidade_origem = st.text_input('📍 Cidade de origem da carga:')
-        estado_origem = st.text_input('📍 Estado de origem da carga:')
+        estado_origem = st.selectbox('📍 Estado de origem da carga:', [
+                                        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
+                                        'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'])
         cidade_destino = st.text_input('🏁 Cidade de destino da carga:')
-        estado_destino = st.text_input('🏁 Estado de destino da carga:')
+        estado_destino = st.selectbox('🏁 Estado de destino da carga:', [
+                                        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
+                                        'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'])
         tipo_carga = st.selectbox('📦 Tipo de carga:', ['barrilha', 'apara de papel', 'cimento', 'telha', 'bobina de ferro', 'piso', 'outros'])
         valor_frete = st.number_input(label='💰 Valor do frete',value=0.0)
         
@@ -87,8 +93,37 @@ elif st.session_state['flow_step'] == 'empresa_form2':
 elif st.session_state['flow_step'] == 'empresa_form3':
     with st.form(key='empresa_form3'):
         foto_caminhao = st.selectbox('Exigir fotos do caminhão?',['Sim', 'Não'])
-        tipo_caminhao = st.text_input('🚛 Tipo de caminhão') # talvez mudar para o st.selectbox()
-        tipo_carroceria = st.text_input('🚚 Tipo de carroceria') # talvez mudar para o st.selectbox()
+        tipo_caminhao = st.selectbox('🚛 Tipo de caminhão', [
+        "Caminhão 3/4 ou VUC",
+        "Caminhão toco",
+        "Caminhão truck",
+        "Cavalo mecânico simples",
+        "Cavalo mecânico trucado",
+        "Carreta 2 eixos",
+        "Carreta 3 eixos",
+        "Bitrem ou treminhão",
+        "Rodotrem",
+        "Caminhão comboio",
+        "Caminhão basculante",
+        "Caminhão-tanque",
+        "Prancha",
+        "Munck"
+        ]) 
+        tipo_carroceria = st.selectbox('🚚 Tipo de carroceria', [
+        "Caçamba ou baú",
+        "Tanque",
+        "Frigorífica",
+        "Sider",
+        "Carrocerias abertas",
+        "Basculante",
+        "Boiadeira",
+        "Florestal",
+        "Grade alta",
+        "Grade baixa",
+        "Munck",
+        "Poliguindaste",
+        "Prancha"
+    ]) 
         tamanho_carroceria = st.number_input(label='📏 Tamanho da carroceria', value= 0.00)
         
         next_button = st.form_submit_button(label='Próximo')
@@ -99,7 +134,22 @@ elif st.session_state['flow_step'] == 'empresa_form3':
         st.session_state['tipo_caminhao'] = tipo_caminhao
         st.session_state['tipo_carroceria'] = tipo_carroceria
         st.session_state['tamanho_carroceria'] = tamanho_carroceria
-#FALTA CONFIRMAÇAO FINAL DA PARTE DA EMPRESA!
+
+        st.session_state['flow_step'] = 'informacoes_empresa'
+        st.rerun()
+        
+# CONFIRMAÇÃO DAS INFORMAÇÕES: tabela com resumo pro cliente ver, ISSO VAI SAIR
+elif st.session_state['flow_step'] == 'informacoes_empresa':
+        dados_empresa = {
+            'Nome da Empresa', [st.session_state['nome_empresa']],
+            'Cidade de Origem', [st.session_state['cidade_origem']],
+            'Cidade de Origem', [st.session_state['cidade_origem']],
+            'Estado de Origem', [st.session_state['estado_origem']],
+            'Cidade de Destino', [st.session_state['cidade_destino']],
+            'Estado de Destino', [st.session_state['estado_destino']],
+            'Tipo da Carga', [st.session_state['tipo_carga']],
+            'Valor do Frete',[st.session_state['valor_frete']]
+        }
 
 # Formulário caminhoneiro
 elif st.session_state['flow_step'] == 'motorista_info':
