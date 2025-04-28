@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+
 st.title('Chatbot de Agênciamento de Cargas')
 
 if 'flow_step' not in st.session_state:
@@ -52,6 +53,7 @@ elif st.session_state['flow_step'] == 'empresa_info':
     
     # Adiciona os valores ao st.session_state 
     if next_button:
+        st.session_state['nome_empresa'] = nome_empresa
         st.session_state['cidade_origem'] = cidade_origem
         st.session_state['estado_origem'] = estado_origem
         st.session_state['cidade_destino'] = cidade_destino
@@ -61,7 +63,7 @@ elif st.session_state['flow_step'] == 'empresa_info':
         
         # Avançar para próxima etapa do formulário
         st.session_state['flow_step'] = 'empresa_form2'
-        st.rerun()
+        st.rerun()   
         
 #FORMULÁRIO ETAPA 2: frete, pagamento, datas e implementos
 elif st.session_state['flow_step'] == 'empresa_form2':
@@ -126,31 +128,18 @@ elif st.session_state['flow_step'] == 'empresa_form3':
     ]) 
         tamanho_carroceria = st.number_input(label='📏 Tamanho da carroceria', value= 0.00)
         
-        next_button = st.form_submit_button(label='Próximo')
+        finalizar_button = st.form_submit_button(label='Finalizar Cadastro')
         
     # Adiciona os valores ao st.session_state
-    if next_button:
+    if finalizar_button:
+        # Salva informações coletadas nesta etapa
         st.session_state['foto_caminhao'] = foto_caminhao
         st.session_state['tipo_caminhao'] = tipo_caminhao
         st.session_state['tipo_carroceria'] = tipo_carroceria
         st.session_state['tamanho_carroceria'] = tamanho_carroceria
-
-        st.session_state['flow_step'] = 'informacoes_empresa'
-        st.rerun()
         
-# CONFIRMAÇÃO DAS INFORMAÇÕES: tabela com resumo pro cliente ver, ISSO VAI SAIR
-elif st.session_state['flow_step'] == 'informacoes_empresa':
-        dados_empresa = {
-            'Nome da Empresa', [st.session_state['nome_empresa']],
-            'Cidade de Origem', [st.session_state['cidade_origem']],
-            'Cidade de Origem', [st.session_state['cidade_origem']],
-            'Estado de Origem', [st.session_state['estado_origem']],
-            'Cidade de Destino', [st.session_state['cidade_destino']],
-            'Estado de Destino', [st.session_state['estado_destino']],
-            'Tipo da Carga', [st.session_state['tipo_carga']],
-            'Valor do Frete',[st.session_state['valor_frete']]
-        }
 
+    
 # Formulário caminhoneiro
 elif st.session_state['flow_step'] == 'motorista_info':
     st.write('Estamos felizes que você escolheu a Lavoura Transporte para buscar cargas')
