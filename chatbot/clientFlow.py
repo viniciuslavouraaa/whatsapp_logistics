@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-
+# Em clientFlow.py
+from database import salvar_empresa
 
 st.title('Chatbot de Agênciamento de Cargas')
 
@@ -138,7 +139,30 @@ elif st.session_state['flow_step'] == 'empresa_form3':
         st.session_state['tipo_carroceria'] = tipo_carroceria
         st.session_state['tamanho_carroceria'] = tamanho_carroceria
         
+        # Juntando todos os dados
+        dados_empresa = {
+            "nome_empresa": st.session_state.get("nome_empresa"),
+            "cidade_origem": st.session_state.get("cidade_origem"),
+            "estado_origem": st.session_state.get("estado_origem"),
+            "cidade_destino": st.session_state.get("cidade_destino"),
+            "estado_destino": st.session_state.get("estado_destino"),
+            "tipo_carga": st.session_state.get("tipo_carga"),
+            "valor_frete": st.session_state.get("valor_frete"),
+            "frete": st.session_state.get("frete"),
+            "forma_pagamento": st.session_state.get("forma_pagamento"),
+            "data_carregamento": st.session_state.get("data_carregamento"),
+            "data_descarregamento": st.session_state.get("data_descarregamento"),
+            "implemento": st.session_state.get("implemento"),
+            "foto_caminhao": st.session_state.get("foto_caminhao"),
+            "tipo_caminhao": st.session_state.get("tipo_caminhao"),
+            "tipo_carroceria": st.session_state.get("tipo_carroceria"),
+            "tamanho_carroceria": st.session_state.get("tamanho_carroceria"),
+    }
 
+    # Salvar no banco de dados
+    salvar_empresa(**dados_empresa)
+    st.success('Cadastro realizado com sucesso!')
+    st.write(pd.DataFrame([dados_empresa])) 
     
 # Formulário caminhoneiro
 elif st.session_state['flow_step'] == 'motorista_info':
