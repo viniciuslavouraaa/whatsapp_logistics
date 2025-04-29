@@ -164,8 +164,46 @@ elif st.session_state['flow_step'] == 'empresa_form3':
     st.success('Cadastro realizado com sucesso!')
     st.write(pd.DataFrame([dados_empresa])) 
     
-# Formulário caminhoneiro
+# FOMULÁRIO CAMINHONEIRO 1: nome, cnh, cpf, rg
 elif st.session_state['flow_step'] == 'motorista_info':
     st.write('Estamos felizes que você escolheu a Lavoura Transporte para buscar cargas')
     st.write('Aqui vamos coletar algumas informações da empresa')
-    # Adicione aqui os campos para coletar informações do caminhoneiro
+    
+    with st.form(key='motorista_info'):
+        nome_caminhoneiro = st.text_input('Nome Completo:')
+        foto_cnh = st.file_uploader('📄 Foto da Habilitação:',type=["jpg", "jpeg", "png"])
+        cpf_caminhoneiro = st.text_input('📇 Digite seu CPF:', placeholder='000.000.000-00')
+        rg_caminhoneiro = st.text_input('🪪 Digite seu RG:', placeholder='00.000.000-00')
+        
+        next_button = st.form_submit_button(label='Próximo')
+    
+    if next_button:
+        st.session_state['nome_caminhoneiro'] = nome_caminhoneiro
+        st.session_state['foto_cnh'] = foto_cnh
+        st.session_state['cpf_caminhoneiro'] = cpf_caminhoneiro
+        st.session_state['rg_caminhoneiro'] = rg_caminhoneiro
+        
+        st.session_state['flow_step'] = 'motorista_form1'
+        st.rerun()
+        
+elif st.session_state['flow_step'] == 'motorista_form1':
+
+    with st.form(key='motorista_info1'):
+        with st.expander('Dados Bancários (Clique para preencher)'):
+            nome_banco = st.text_input('Nome do Banco:')
+            agencia = st.text_input('Agência (com dígito):')
+            conta = st.text_input('Conta (com dígito):')
+            tipo_conta = st.selectbox('Tipo da Conta:', ['Conta Corrente', 'Conta Poupança'])
+            chave_pix = st.text_input('Chave Pix (opcional):')
+            
+        next_button = st.form_submit_button(label='Próximo')
+        
+    if next_button:
+        st.session_state['nome_banco'] = nome_banco
+        st.session_state['agencia'] = agencia
+        st.session_state['conta'] = conta
+        st.session_state['tipo_conta'] = tipo_conta
+        st.session_state['chave_pix'] = chave_pix
+        
+        st.session_state['flow_step'] = 'motorista_form2'
+        st.rerun()
