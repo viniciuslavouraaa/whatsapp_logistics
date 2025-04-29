@@ -1,227 +1,200 @@
+# clientFlow.py (versão pronta para apresentação - sem salvamento de arquivos)
+
 import streamlit as st
 import pandas as pd
-# Em clientFlow.py
-from database import salvar_empresa
+from database import salvar_empresa, salvar_motorista
 
-st.title('Chatbot de Agênciamento de Cargas')
+st.title('Chatbot de Agenciamento de Cargas')
+
+estados_brasil = [
+    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',
+    'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+]
 
 if 'flow_step' not in st.session_state:
     st.session_state['flow_step'] = 'initial_choice'
 
+# ETAPA INICIAL - ESCOLHA DO TIPO DE USUÁRIO
 if st.session_state['flow_step'] == 'initial_choice':
     st.write('Olá! Bem-vindo ao nosso sistema de agenciamento de cargas.')
-    
     with st.form(key='user_type_form'):
-        
-        user_type = st.radio(
-            'Você está:',
-            ('Buscando cargas', 'Buscando motoristas parceiros')
-        )
+        user_type = st.radio('Você está:', ('Buscando cargas', 'Buscando motoristas parceiros'))
         submit_button = st.form_submit_button(label='Confirmar')
-        
+
     if submit_button:
         if user_type == 'Buscando motoristas parceiros':
             st.session_state['user_type'] = 'empresa'
-            st.session_state['flow_step'] = 'empresa_info' # Próximo passo para empresa
-        elif user_type == 'Buscando cargas':
+            st.session_state['flow_step'] = 'empresa_form1'
+        else:
             st.session_state['user_type'] = 'caminhoneiro'
-            st.session_state['flow_step'] = 'motorista_info' # Próximo passo para caminhoneiro
-        st.rerun()   
+            st.session_state['flow_step'] = 'motorista_form1'
+        st.rerun()
 
-  # FORMULÁRIO ETAPA 1: origem, destino e tipo de carga     
-elif st.session_state['flow_step'] == 'empresa_info':
-    st.write('Estamos felizes que você escolheu a Lavoura Transporte para cuidar da sua carga!')
-    st.write('Aqui vamos coletar algumas informações da empresa')
-    
-    with st.form(key='empresa_form'):
-        nome_empresa = st.text_input('Qual o nome da sua empresa?')
-        cnpj_empresa = st.text_input('CPNJ da empresa:', label='00.000.000/0000-00')
-        cidade_origem = st.text_input('📍 Cidade de origem da carga:')
-        estado_origem = st.selectbox('📍 Estado de origem da carga:', [
-                                        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
-                                        'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'])
-        cidade_destino = st.text_input('🏁 Cidade de destino da carga:')
-        estado_destino = st.selectbox('🏁 Estado de destino da carga:', [
-                                        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
-                                        'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'])
-        tipo_carga = st.selectbox('📦 Tipo de carga:', ['barrilha', 'apara de papel', 'cimento', 'telha', 'bobina de ferro', 'piso', 'outros'])
-        valor_frete = st.number_input(label='💰 Valor do frete',value=0.0)
-        
-        if tipo_carga == 'outros':
-           tipo_carga_outros = st.text_input('Tipo de carga:')
-        
-        # Condicional se frete nao incluir pedágio
+# ===========================
+# EMPRESA - FORMULÁRIOS
+# ===========================
+
+elif st.session_state['flow_step'] == 'empresa_form1':
+    with st.form(key='empresa_form1'):
+        st.write('### 🏢 Dados da Empresa')
+        nome_empresa = st.text_input('Nome da empresa:')
+        cnpj_empresa = st.text_input('CNPJ:')
+        telefone_empresa = st.text_input('Telefone de contato:')
         next_button = st.form_submit_button(label='Próximo')
-    
-    # Adiciona os valores ao st.session_state 
+
     if next_button:
-        st.session_state['nome_empresa'] = nome_empresa
-        st.session_state['cnpj_empresa'] = cnpj_empresa
-        st.session_state['cidade_origem'] = cidade_origem
-        st.session_state['estado_origem'] = estado_origem
-        st.session_state['cidade_destino'] = cidade_destino
-        st.session_state['estado_destino'] = estado_destino
-        st.session_state['tipo_carga'] = tipo_carga if tipo_carga != 'outros' else tipo_carga_outros
-        st.session_state['valor_frete'] = valor_frete
-        
-        # Avançar para próxima etapa do formulário
-        st.session_state['flow_step'] = 'empresa_form2'
-        st.rerun()   
-        
-#FORMULÁRIO ETAPA 2: frete, pagamento, datas e implementos
+        st.session_state.update({
+            'nome_empresa': nome_empresa,
+            'cnpj_empresa': cnpj_empresa,
+            'telefone_empresa': telefone_empresa,
+            'flow_step': 'empresa_form2'
+        })
+        st.rerun()
+
 elif st.session_state['flow_step'] == 'empresa_form2':
     with st.form(key='empresa_form2'):
-        frete = st.selectbox('Frete inclui pedágio?', ['Sim', 'Não'])
-        forma_pagamento = st.selectbox('💸 Forma de pagamento:', ['Pix', 'Cartão', 'Dinheiro'])
-        data_carregamento = st.date_input('📅 Data de carregamento')
-        data_descarregamento = st.date_input('📅 Data de descarregamento')
-        implemento = st.selectbox('🔧 Implementos necessários', [ 'lona', 'cinta', 'corda', 'cantoneiras', 'paletes', 'forro', 'pro chão', 'gancho', 'tapete de borracha', 'nenhum', 'outros'])
-        
-        if implemento == 'outros':
-            implemento_outros = st.text_input('Qual implemento necessário:')
-    
+        st.write('### 🚚 Informações da Carga')
+        cidade_origem = st.text_input('Cidade de origem:')
+        estado_origem = st.selectbox('Estado de origem:', estados_brasil)
+        cidade_destino = st.text_input('Cidade de destino:')
+        estado_destino = st.selectbox('Estado de destino:', estados_brasil)
+        tipo_carga = st.selectbox('Tipo da carga:', ['barrilha', 'apara de papel', 'cimento', 'telha', 'bobina de ferro', 'piso', 'outros'])
+        valor_frete = st.number_input('Valor do frete (R$)', min_value=0.0)
+        if tipo_carga == 'outros':
+            tipo_carga = st.text_input('Especifique o tipo de carga:')
         next_button = st.form_submit_button(label='Próximo')
-        
-    # Adiciona os valores ao st.session_state
+
     if next_button:
-        st.session_state['frete'] = frete
-        st.session_state['forma_pagamento'] = forma_pagamento
-        st.session_state['data_carregamento'] = data_carregamento
-        st.session_state['data_descarregamento'] = data_descarregamento
-        st.session_state['implemento'] = implemento if implemento != 'outros' else implemento_outros
-        
-        # Avançar para próxima etapa do formulário
-        st.session_state['flow_step'] = 'empresa_form3'
+        st.session_state.update({
+            'cidade_origem': cidade_origem,
+            'estado_origem': estado_origem,
+            'cidade_destino': cidade_destino,
+            'estado_destino': estado_destino,
+            'tipo_carga': tipo_carga,
+            'valor_frete': valor_frete,
+            'flow_step': 'empresa_form3'
+        })
         st.rerun()
 
-#FORMULÁRIO ETAPA 3: foto do caminhao, tipo do caminhao, tipo carroceria e tamanho
 elif st.session_state['flow_step'] == 'empresa_form3':
     with st.form(key='empresa_form3'):
-        foto_caminhao = st.selectbox('Exigir fotos do caminhão?',['Sim', 'Não'])
-        tipo_caminhao = st.selectbox('🚛 Tipo de caminhão', [
-        "Caminhão 3/4 ou VUC",
-        "Caminhão toco",
-        "Caminhão truck",
-        "Cavalo mecânico simples",
-        "Cavalo mecânico trucado",
-        "Carreta 2 eixos",
-        "Carreta 3 eixos",
-        "Bitrem ou treminhão",
-        "Rodotrem",
-        "Caminhão comboio",
-        "Caminhão basculante",
-        "Caminhão-tanque",
-        "Prancha",
-        "Munck"
-        ]) 
-        tipo_carroceria = st.selectbox('🚚 Tipo de carroceria', [
-        "Caçamba ou baú",
-        "Tanque",
-        "Frigorífica",
-        "Sider",
-        "Carrocerias abertas",
-        "Basculante",
-        "Boiadeira",
-        "Florestal",
-        "Grade alta",
-        "Grade baixa",
-        "Munck",
-        "Poliguindaste",
-        "Prancha"
-    ]) 
-        tamanho_carroceria = st.number_input(label='📏 Tamanho da carroceria', value= 0.00)
-        
-        finalizar_button = st.form_submit_button(label='Finalizar Cadastro')
-        
-    # Adiciona os valores ao st.session_state
-    if finalizar_button:
-        # Salva informações coletadas nesta etapa
-        st.session_state['foto_caminhao'] = foto_caminhao
-        st.session_state['tipo_caminhao'] = tipo_caminhao
-        st.session_state['tipo_carroceria'] = tipo_carroceria
-        st.session_state['tamanho_carroceria'] = tamanho_carroceria
-        
-        # Juntando todos os dados
-        dados_empresa = {
-            "nome_empresa": st.session_state.get("nome_empresa"),
-            "cidade_origem": st.session_state.get("cidade_origem"),
-            "estado_origem": st.session_state.get("estado_origem"),
-            "cidade_destino": st.session_state.get("cidade_destino"),
-            "estado_destino": st.session_state.get("estado_destino"),
-            "tipo_carga": st.session_state.get("tipo_carga"),
-            "valor_frete": st.session_state.get("valor_frete"),
-            "frete": st.session_state.get("frete"),
-            "forma_pagamento": st.session_state.get("forma_pagamento"),
-            "data_carregamento": st.session_state.get("data_carregamento"),
-            "data_descarregamento": st.session_state.get("data_descarregamento"),
-            "implemento": st.session_state.get("implemento"),
-            "foto_caminhao": st.session_state.get("foto_caminhao"),
-            "tipo_caminhao": st.session_state.get("tipo_caminhao"),
-            "tipo_carroceria": st.session_state.get("tipo_carroceria"),
-            "tamanho_carroceria": st.session_state.get("tamanho_carroceria"),
-    }
+        st.write('### 🌍 Detalhes do Frete')
+        frete = st.selectbox('Frete inclui pedágio?', ['Sim', 'Não'])
+        forma_pagamento = st.selectbox('Forma de pagamento:', ['Pix', 'Cartão', 'Dinheiro'])
+        data_carregamento = st.date_input('Data de carregamento')
+        data_descarregamento = st.date_input('Data de descarregamento')
+        implemento = st.selectbox('Implemento necessário:', ['lona', 'cinta', 'corda', 'cantoneiras', 'paletes', 'forro', 'pro chão', 'gancho', 'tapete de borracha', 'nenhum', 'outros'])
+        if implemento == 'outros':
+            implemento = st.text_input('Especifique o implemento:')
+        foto_caminhao = st.selectbox('Exigir fotos do caminhão?', ['Sim', 'Não'])
+        tipo_caminhao = st.selectbox('Tipo de caminhão:', ['Caminhão 3/4 ou VUC', 'Caminhão toco', 'Caminhão truck', 'Cavalo mecânico simples', 'Cavalo mecânico trucado', 'Carreta 2 eixos', 'Carreta 3 eixos', 'Bitrem ou treminhão', 'Rodotrem', 'Caminhão comboio', 'Caminhão basculante', 'Caminhão-tanque', 'Prancha', 'Munck'])
+        tipo_carroceria = st.selectbox('Tipo de carroceria:', ['Caçamba ou baú', 'Tanque', 'Frigorífica', 'Sider', 'Carrocerias abertas', 'Basculante', 'Boiadeira', 'Florestal', 'Grade alta', 'Grade baixa', 'Munck', 'Poliguindaste', 'Prancha'])
+        tamanho_carroceria = st.number_input('Tamanho da carroceria (em metros):', min_value=0.0)
+        finalizar = st.form_submit_button('Finalizar Cadastro')
 
-    # Salvar no banco de dados
-    salvar_empresa(**dados_empresa)
-    st.success('Cadastro realizado com sucesso!')
-    st.write(pd.DataFrame([dados_empresa])) 
-    
-# FOMULÁRIO CAMINHONEIRO 1: nome, cnh, cpf, rg
-elif st.session_state['flow_step'] == 'motorista_info':
-    st.write('Estamos felizes que você escolheu a Lavoura Transporte para buscar cargas')
-    st.write('Aqui vamos coletar algumas informações da empresa')
-    
-    with st.form(key='motorista_info'):
-        nome_caminhoneiro = st.text_input('Nome Completo:')
-        foto_cnh = st.file_uploader('📄 Habilitação (pdf):',type=['pdf'])
-        cpf_caminhoneiro = st.text_input('📇 Digite seu CPF:', placeholder='000.000.000-00')
-        rg_caminhoneiro = st.text_input('🪪 Digite seu RG:', placeholder='00.000.000-00')
-        
-        next_button = st.form_submit_button(label='Próximo') 
-    if next_button:
-        st.session_state['nome_caminhoneiro'] = nome_caminhoneiro
-        st.session_state['foto_cnh'] = foto_cnh
-        st.session_state['cpf_caminhoneiro'] = cpf_caminhoneiro
-        st.session_state['rg_caminhoneiro'] = rg_caminhoneiro
-        
-        st.session_state['flow_step'] = 'motorista_form1'
-        st.rerun()
-# FORMULÁRIO CAMINHONEIRO 2 : Dados bancários: banco, agencia, conta, tipo e pix
+    if finalizar:
+        st.session_state.update({
+            'frete': frete,
+            'forma_pagamento': forma_pagamento,
+            'data_carregamento': data_carregamento,
+            'data_descarregamento': data_descarregamento,
+            'implemento': implemento,
+            'foto_caminhao': foto_caminhao,
+            'tipo_caminhao': tipo_caminhao,
+            'tipo_carroceria': tipo_carroceria,
+            'tamanho_carroceria': tamanho_carroceria
+        })
+        campos_empresa = [
+            'nome_empresa', 'cnpj_empresa', 'telefone_empresa',
+            'cidade_origem', 'estado_origem', 'cidade_destino', 'estado_destino',
+            'tipo_carga', 'valor_frete', 'frete', 'forma_pagamento',
+            'data_carregamento', 'data_descarregamento', 'implemento',
+            'foto_caminhao', 'tipo_caminhao', 'tipo_carroceria', 'tamanho_carroceria'
+        ]
+        dados_empresa = {k: st.session_state[k] for k in campos_empresa if k in st.session_state}
+        salvar_empresa(**dados_empresa)
+        st.success('Cadastro da empresa finalizado com sucesso!')
+        st.dataframe(pd.DataFrame([dados_empresa]))
+
+# ===========================
+# CAMINHONEIRO - FORMULÁRIOS
+# ===========================
+
 elif st.session_state['flow_step'] == 'motorista_form1':
-
     with st.form(key='motorista_form1'):
-        with st.expander('Dados Bancários (Clique para preencher)'):
-            nome_banco = st.text_input('Nome do Banco:')
-            agencia = st.text_input('Agência (com dígito):')
-            conta = st.text_input('Conta (com dígito):')
-            tipo_conta = st.selectbox('Tipo da Conta:', ['Conta Corrente', 'Conta Poupança'])
-            chave_pix = st.text_input('Chave Pix (opcional):')
-            
-        next_button = st.form_submit_button(label='Próximo')
-        
+        st.write('### 🚗 Dados Pessoais do Caminhoneiro')
+        nome_caminhoneiro = st.text_input('Nome Completo:')
+        cpf_caminhoneiro = st.text_input('CPF:')
+        rg_caminhoneiro = st.text_input('RG:')
+        telefone_caminhoneiro = st.text_input('Telefone para contato:')
+        # foto_cnh REMOVIDO
+        next_button = st.form_submit_button('Próximo')
+
     if next_button:
-        st.session_state['nome_banco'] = nome_banco
-        st.session_state['agencia'] = agencia
-        st.session_state['conta'] = conta
-        st.session_state['tipo_conta'] = tipo_conta
-        st.session_state['chave_pix'] = chave_pix
-        
-        st.session_state['flow_step'] = 'motorista_form2'
+        st.session_state.update({
+            'nome_caminhoneiro': nome_caminhoneiro,
+            'cpf_caminhoneiro': cpf_caminhoneiro,
+            'rg_caminhoneiro': rg_caminhoneiro,
+            'telefone_caminhoneiro': telefone_caminhoneiro,
+            'flow_step': 'motorista_form2'
+        })
         st.rerun()
-        
-elif st.session_state['flow_step'] == 'motorista_form2'  :
+
+elif st.session_state['flow_step'] == 'motorista_form2':
     with st.form(key='motorista_form2'):
-        doc_caminhao = st.file_uploader('Documento do Caminhão (pdf):')
-        antt = st.selectbox('Possui ANTT:', ['Sim', 'Não'])
-        fotos_caminhao = st.file_uploader('📸 Fotos do caminhão:', type=['png', 'jpg', 'jpeg'])
-        fretebras =  st.selectbox('Possui Fretebras:', ['Sim', 'Não'])
-        motorista = st.selectbox('Motorista de Empresa:', ['Sim', 'Não'])
-                         
-        finalizar_button = st.form_submit_button(label='Próximo')
-    
-    if finalizar_button:
-        st.session_state['doc_caminhao'] = doc_caminhao
-        st.session_state['antt'] = antt
-        st.session_state['fotos_caminhao'] = fotos_caminhao
-        st.session_state['fretebras'] = fretebras
-        st.session_state['motorista'] = motorista
+        st.write('### 💳 Dados Bancários')
+        nome_banco = st.text_input('Nome do Banco:')
+        agencia = st.text_input('Agência:')
+        conta = st.text_input('Conta:')
+        tipo_conta = st.selectbox('Tipo da Conta:', ['Conta Corrente', 'Conta Poupança'])
+        chave_pix = st.text_input('Chave Pix (opcional):')
+        next_button = st.form_submit_button('Próximo')
+
+    if next_button:
+        st.session_state.update({
+            'nome_banco': nome_banco,
+            'agencia': agencia,
+            'conta': conta,
+            'tipo_conta': tipo_conta,
+            'chave_pix': chave_pix,
+            'flow_step': 'motorista_form3'
+        })
+        st.rerun()
+
+elif st.session_state['flow_step'] == 'motorista_form3':
+    with st.form(key='motorista_form3'):
+        st.write('### 🚚 Veículo e Vinculação')
+        # doc_caminhao, fotos_caminhao REMOVIDOS
+        antt = st.selectbox('Possui ANTT?', ['Sim', 'Não'])
+        fretebras = st.selectbox('Possui Fretebras?', ['Sim', 'Não'])
+        motorista_empresa = st.selectbox('Motorista de empresa?', ['Sim', 'Não'])
+
+        if motorista_empresa == 'Sim':
+            with st.expander('Dados da empresa:'):
+                nome_empresa = st.text_input('Nome da empresa:')
+                cnpj_empresa = st.text_input('CNPJ da empresa:')
+                telefone_empresa = st.text_input('Telefone da empresa:')
+                st.session_state.update({
+                    'nome_empresa': nome_empresa,
+                    'cnpj_empresa': cnpj_empresa,
+                    'telefone_empresa': telefone_empresa
+                })
+
+        finalizar = st.form_submit_button('Finalizar Cadastro')
+
+    if finalizar:
+        st.session_state.update({
+            'antt': antt,
+            'fretebras': fretebras,
+            'motorista_empresa': motorista_empresa
+        })
+        campos_motorista = [
+            'nome_caminhoneiro', 'cpf_caminhoneiro', 'rg_caminhoneiro', 'telefone_caminhoneiro',
+            'nome_banco', 'agencia', 'conta', 'tipo_conta', 'chave_pix',
+            'antt', 'fretebras', 'motorista_empresa',
+            'nome_empresa', 'cnpj_empresa', 'telefone_empresa'
+        ]
+        dados_motorista = {k: st.session_state[k] for k in campos_motorista if k in st.session_state}
+        salvar_motorista(**dados_motorista)
+        st.success('Cadastro do caminhoneiro finalizado com sucesso!')
+        st.dataframe(pd.DataFrame([dados_motorista]))
