@@ -41,3 +41,19 @@ def carregar_empresa_por_nome(nome):
     query = f"SELECT * FROM empresas WHERE nome_empresa = '{nome}'"
     df = pd.read_sql(query, engine)
     return df
+
+class Caminhoneiro(Base):
+    __tablename__ = 'Caminhoneiros'
+    id = Column(Integer, primary_key=True)
+    nome_caminhoneiro = Column(String)
+    # foto cnh
+    cpf_caminhoneiro = Column(String)
+    rg_caminhoneiro = Column(String)
+    nome_banco = Column(String)
+    agencia = Column(String)
+    conta = Column(String)
+    tipo_conta = Column(String)
+    chave_pix = Column(String)
+    # doc caminhao
+    # antt
+    fretebras = Column(String)
