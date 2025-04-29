@@ -35,6 +35,7 @@ elif st.session_state['flow_step'] == 'empresa_info':
     
     with st.form(key='empresa_form'):
         nome_empresa = st.text_input('Qual o nome da sua empresa?')
+        cnpj_empresa = st.text_input('CPNJ da empresa:', label='00.000.000/0000-00')
         cidade_origem = st.text_input('📍 Cidade de origem da carga:')
         estado_origem = st.selectbox('📍 Estado de origem da carga:', [
                                         'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 
@@ -55,6 +56,7 @@ elif st.session_state['flow_step'] == 'empresa_info':
     # Adiciona os valores ao st.session_state 
     if next_button:
         st.session_state['nome_empresa'] = nome_empresa
+        st.session_state['cnpj_empresa'] = cnpj_empresa
         st.session_state['cidade_origem'] = cidade_origem
         st.session_state['estado_origem'] = estado_origem
         st.session_state['cidade_destino'] = cidade_destino
@@ -171,12 +173,11 @@ elif st.session_state['flow_step'] == 'motorista_info':
     
     with st.form(key='motorista_info'):
         nome_caminhoneiro = st.text_input('Nome Completo:')
-        foto_cnh = st.file_uploader('📄 Foto da Habilitação:',type=["jpg", "jpeg", "png"])
+        foto_cnh = st.file_uploader('📄 Habilitação (pdf):',type=['pdf'])
         cpf_caminhoneiro = st.text_input('📇 Digite seu CPF:', placeholder='000.000.000-00')
         rg_caminhoneiro = st.text_input('🪪 Digite seu RG:', placeholder='00.000.000-00')
         
-        next_button = st.form_submit_button(label='Próximo')
-    
+        next_button = st.form_submit_button(label='Próximo') 
     if next_button:
         st.session_state['nome_caminhoneiro'] = nome_caminhoneiro
         st.session_state['foto_cnh'] = foto_cnh
@@ -185,10 +186,10 @@ elif st.session_state['flow_step'] == 'motorista_info':
         
         st.session_state['flow_step'] = 'motorista_form1'
         st.rerun()
-        
+# FORMULÁRIO CAMINHONEIRO 2 : Dados bancários: banco, agencia, conta, tipo e pix
 elif st.session_state['flow_step'] == 'motorista_form1':
 
-    with st.form(key='motorista_info1'):
+    with st.form(key='motorista_form1'):
         with st.expander('Dados Bancários (Clique para preencher)'):
             nome_banco = st.text_input('Nome do Banco:')
             agencia = st.text_input('Agência (com dígito):')
@@ -207,3 +208,20 @@ elif st.session_state['flow_step'] == 'motorista_form1':
         
         st.session_state['flow_step'] = 'motorista_form2'
         st.rerun()
+        
+elif st.session_state['flow_step'] == 'motorista_form2'  :
+    with st.form(key='motorista_form2'):
+        doc_caminhao = st.file_uploader('Documento do Caminhão (pdf):')
+        antt = st.selectbox('Possui ANTT:', ['Sim', 'Não'])
+        fotos_caminhao = st.file_uploader('📸 Fotos do caminhão:', type=['png', 'jpg', 'jpeg'])
+        fretebras =  st.selectbox('Possui Fretebras:', ['Sim', 'Não'])
+        motorista = st.selectbox('Motorista de Empresa:', ['Sim', 'Não'])
+                         
+        finalizar_button = st.form_submit_button(label='Próximo')
+    
+    if finalizar_button:
+        st.session_state['doc_caminhao'] = doc_caminhao
+        st.session_state['antt'] = antt
+        st.session_state['fotos_caminhao'] = fotos_caminhao
+        st.session_state['fretebras'] = fretebras
+        st.session_state['motorista'] = motorista
