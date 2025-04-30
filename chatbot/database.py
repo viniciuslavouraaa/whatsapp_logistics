@@ -25,6 +25,7 @@ class Empresa(BaseEmpresa):
     data_carregamento = Column(Date)
     data_descarregamento = Column(Date)
     implemento = Column(String)
+    foto_caminhao = Column(String)
     tipo_caminhao = Column(String)
     tipo_carroceria = Column(String)
     tamanho_carroceria = Column(Float)
