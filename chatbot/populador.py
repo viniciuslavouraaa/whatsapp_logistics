@@ -38,6 +38,23 @@ tipos_carroceria= [
     "Florestal (específica para transporte de toras de madeira)","Cegonha (para transporte de veículos)","Munck (com guindaste para carga e descarga)","Poliguindaste (para transporte de caçambas)",
     "Prancha (para cargas indivisíveis e equipamentos pesados)","Porta-contêiner (para transporte de contêineres)","Carroceria para bebidas (estruturada para garrafas e engradados)","Carroceria para gás (específica para cilindros de gás)"
 ]
+bancos_brasil = [
+    "Banco do Brasil",
+    "Caixa Econômica Federal",
+    "Itaú Unibanco",
+    "Bradesco",
+    "Santander Brasil",
+    "Nubank",
+    "Banco Inter",
+    "PicPay",
+    "C6 Bank",
+    "Next (Bradesco)",
+    "Safra",
+    "BTG Pactual",
+    "Banrisul",
+    "Sicoob",
+    "Credicorpas"
+]
 formas_pagamento= ['Pix', 'Cartão', 'Dinheiro']
 tipos_conta= ['Conta Corrente', 'Conta Poupança']
 
@@ -67,22 +84,33 @@ for _ in range(50):
 # Popular motoristas
 
 for _ in range(50):
+    motorista_empresa=random.choice(['Sim', 'Não'])
+    
+    if motorista_empresa == 'Sim':
+        nome_empresa = fake.company()
+        cnpj_empresa = fake.cnpj()
+        telefone_empresa = fake.phone_number()
+    else:
+        nome_empresa = ''
+        cnpj_empresa = ''
+        telefone_empresa = ''
+    
     salvar_motorista(
         nome_caminhoneiro=fake.name(),
         cpf_caminhoneiro= fake.cpf(),
         rg_caminhoneiro=fake.rg(),
         telefone_caminhoneiro=fake.phone_number(),
-        nome_banco=fake.company(),
-        agencia=fake.bban(),
-        conta=fake.bban(),
+        nome_banco=random.choice(bancos_brasil),
+        agencia=str(random.randint(1000, 9999)) + '-' + str(random.randint(0, 9)),
+        conta=str(random.randint(10000, 99999)) + '-' + str(random.randint(0, 9)),
         tipo_conta=random.choice(tipos_conta),
         chave_pix=random.choice([fake.email(), fake.phone_number()]),
         antt=random.choice(['Sim', 'Não']),
         fretebras=random.choice(['Sim', 'Não']),
-        motorista_empresa=random.choice(['Sim', 'Não']),
-        nome_empresa=fake.company(),
-        cnpj_empresa=fake.cnpj(),
-        telefone_empresa=fake.phone_number()
+        motorista_empresa=motorista_empresa,
+        nome_empresa=str(nome_empresa),
+        cnpj_empresa=str(cnpj_empresa),
+        telefone_empresa=str(telefone_empresa)
     )
     
 print("Base populada com sucesso!")
