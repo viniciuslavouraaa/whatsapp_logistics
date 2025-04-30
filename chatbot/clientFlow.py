@@ -30,9 +30,7 @@ if st.session_state['flow_step'] == 'initial_choice':
             st.session_state['flow_step'] = 'motorista_form1'
         st.rerun()
 
-# ===========================
 # EMPRESA - FORMULÁRIOS
-# ===========================
 
 elif st.session_state['flow_step'] == 'empresa_form1':
     with st.form(key='empresa_form1'):
@@ -116,9 +114,7 @@ elif st.session_state['flow_step'] == 'empresa_form3':
         st.success('Cadastro da empresa finalizado com sucesso!')
         st.dataframe(pd.DataFrame([dados_empresa]))
 
-# ===========================
 # CAMINHONEIRO - FORMULÁRIOS
-# ===========================
 
 elif st.session_state['flow_step'] == 'motorista_form1':
     with st.form(key='motorista_form1'):

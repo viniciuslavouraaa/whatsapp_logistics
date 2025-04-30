@@ -3,12 +3,12 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-Base = declarative_base()
-engine = create_engine('sqlite:///banco_cargas.db')
-Session = sessionmaker(bind=engine)
-session = Session()
+BaseEmpresa = declarative_base()
+engine_empresa = create_engine('sqlite:///database/empresa.db')
+SessionEmpresa = sessionmaker(bind=engine_empresa)
+session_empresa = SessionEmpresa()
 
-class Empresa(Base):
+class Empresa(BaseEmpresa):
     __tablename__ = 'empresas'
     id = Column(Integer, primary_key=True)
     nome_empresa = Column(String)
@@ -29,7 +29,14 @@ class Empresa(Base):
     tipo_carroceria = Column(String)
     tamanho_carroceria = Column(Float)
 
-class Motorista(Base):
+BaseEmpresa.metadata.create_all(engine_empresa)
+
+BaseMotorista = declarative_base()
+engine_motorista = create_engine('sqlite:///database/motorista.db')
+SessionMotorista = sessionmaker(bind=engine_motorista)
+session_motorista = SessionMotorista()
+
+class Motorista(BaseMotorista):
     __tablename__ = 'motoristas'
     id = Column(Integer, primary_key=True)
     nome_caminhoneiro = Column(String)
@@ -48,14 +55,15 @@ class Motorista(Base):
     cnpj_empresa = Column(String)
     telefone_empresa = Column(String)
 
-Base.metadata.create_all(engine)
+BaseMotorista.metadata.create_all(engine_motorista)
 
+# Funções de salvamento
 def salvar_empresa(**dados):
     nova = Empresa(**dados)
-    session.add(nova)
-    session.commit()
+    session_empresa.add(nova)
+    session_empresa.commit()
 
 def salvar_motorista(**dados):
     novo = Motorista(**dados)
-    session.add(novo)
-    session.commit()
+    session_motorista.add(novo)
+    session_motorista.commit()
