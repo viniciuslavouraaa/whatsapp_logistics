@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#6366F1"  # Roxo moderno
+backgroundColor = "#F8FAFC"  # Cinza bem claro
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1F2937"  # Cinza escuro
+font = "sans serif"
