@@ -1,10 +1,8 @@
-# clientFlow.py (versão pronta para apresentação - sem salvamento de arquivos)
-
 import streamlit as st
 import pandas as pd
 from database import salvar_empresa, salvar_motorista
 
-st.title('Chatbot de Agenciamento de Cargas')
+st.title('Agenciamento de Cargas')
 
 estados_brasil = [
     'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG',

@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -7,15 +6,11 @@ from datetime import date
 import json
 import requests
 
-# ===========================
-# 📡 Conexão com o Banco de Dados
-# ===========================
+#  Conexão com o Banco de Dados
 engine = create_engine('sqlite:///database/empresa.db')
 df = pd.read_sql("SELECT * FROM empresas", con=engine)
 
-# ===========================
-# 🎛️ Barra Lateral (Sidebar)
-# ===========================
+#  Barra Lateral (Sidebar)
 st.sidebar.title("📋 Filtros de Visualização")
 
 with st.sidebar.expander("🔎 Filtros Personalizados"):
@@ -29,17 +24,13 @@ if tipos_carga:
     df = df[df['tipo_carga'].isin(tipos_carga)]
 df = df[df['valor_frete'] >= valor_min]
 
-# ===========================
-# 🧾 Título Principal
-# ===========================
+#  Título Principal
 st.title("📦 Dashboard de Agenciamento de Cargas - Empresas")
 
 if df.empty:
     st.warning("⚠️ Nenhum dado encontrado com os filtros aplicados.")
 else:
-    # ===========================
-    # 🔢 Indicadores Gerais (KPIs)
-    # ===========================
+    # Indicadores Gerais (KPIs)
     st.subheader("🔢 Indicadores Gerais")
     col1, col2, col3 = st.columns(3)
 
@@ -47,9 +38,7 @@ else:
     col2.metric("Valor Médio do Frete (R$)", f"{df['valor_frete'].mean():.2f}")
     col3.metric("Estados Atendidos", df['estado_destino'].nunique())
 
-    # ===========================
-    # 📊 Gráfico - Cargas por Estado
-    # ===========================
+    # Gráfico - Cargas por Estado
     st.markdown("---")
     st.subheader("📍 Distribuição de Cargas por Estado de Destino")
     cargas_por_estado = df['estado_destino'].value_counts().reset_index()
@@ -57,9 +46,7 @@ else:
     fig1 = px.bar(cargas_por_estado, x='Estado', y='Quantidade', color='Estado', title="Cargas por Estado")
     st.plotly_chart(fig1, use_container_width=True)
 
-    # ===========================
-    # 🗺️ Mapa - Cargas por Estado (Choropleth)
-    # ===========================
+    #  Mapa - Cargas por Estado (Choropleth)
     st.subheader("🗺️ Mapa de Cargas por Estado")
 
     try:
@@ -98,23 +85,17 @@ else:
     except Exception as e:
         st.error(f"Erro ao carregar o mapa: {e}")
 
-    # ===========================
-    # 📦 Gráfico - Tipos de Carga
-    # ===========================
+    #  Gráfico - Tipos de Carga
     st.subheader("📦 Tipos de Carga mais Comuns")
     tipos = df['tipo_carga'].value_counts().head(10).reset_index()
     tipos.columns = ['Tipo de Carga', 'Total']
     fig2 = px.pie(tipos, names='Tipo de Carga', values='Total', title='Top 10 Tipos de Carga')
     st.plotly_chart(fig2, use_container_width=True)
 
-    # ===========================
-    # 💾 Download dos Dados
-    # ===========================
+    #  Download dos Dados
     st.subheader("💾 Exportar Dados Filtrados")
     st.download_button("📥 Baixar CSV", df.to_csv(index=False).encode('utf-8'), "dados_filtrados.csv", "text/csv")
 
-# ===========================
-# 📅 Rodapé
-# ===========================
+#  Rodapé
 st.markdown("---")
 st.caption(f"Dashboard gerado em {date.today().strftime('%d/%m/%Y')} por Vinicius Lavoura")
