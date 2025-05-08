@@ -58,6 +58,8 @@ bancos_brasil = [
 formas_pagamento= ['Pix', 'Cartão', 'Dinheiro']
 tipos_conta= ['Conta Corrente', 'Conta Poupança']
 
+data_carregamento = date.today() - timedelta(days=random.randint(0, 10))
+data_descarregamento = data_carregamento + timedelta(days=random.randint(1, 3))
 # Popular empresas
 for _ in range(50):
     salvar_empresa(
@@ -72,8 +74,8 @@ for _ in range(50):
         valor_frete=round(random.uniform(500, 3000), 2),
         frete=random.choice(['Sim', 'Não']),
         forma_pagamento=random.choice(formas_pagamento),
-        data_carregamento=date.today(),
-        data_descarregamento=date.today() + timedelta(days=random.randint(1, 7)),
+        data_carregamento = data_carregamento,
+        data_descarregamento = data_descarregamento,
         implemento=random.choice(implementos),
         foto_caminhao=random.choice(['Sim', 'Não']),
         tipo_caminhao=random.choice(tipos_caminhao),
