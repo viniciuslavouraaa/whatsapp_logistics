@@ -58,10 +58,11 @@ bancos_brasil = [
 formas_pagamento= ['Pix', 'Cartão', 'Dinheiro']
 tipos_conta= ['Conta Corrente', 'Conta Poupança']
 
-data_carregamento = date.today() - timedelta(days=random.randint(0, 10))
-data_descarregamento = data_carregamento + timedelta(days=random.randint(1, 3))
+data_carregamento = date.today() - timedelta(days=random.randint(1, 30))
+data_descarregamento = data_carregamento + timedelta(days=random.randint(1, 5))
+
 # Popular empresas
-for _ in range(50):
+for _ in range(100):
     salvar_empresa(
         nome_empresa=fake.company(),
         cnpj_empresa=fake.cnpj(),
@@ -71,7 +72,7 @@ for _ in range(50):
         cidade_destino=fake.city(),
         estado_destino=random.choice(estados),
         tipo_carga=random.choice(tipos_carga),
-        valor_frete=round(random.uniform(500, 3000), 2),
+        valor_frete=round(random.uniform(1200, 15000), 2),
         frete=random.choice(['Sim', 'Não']),
         forma_pagamento=random.choice(formas_pagamento),
         data_carregamento = data_carregamento,
@@ -85,7 +86,7 @@ for _ in range(50):
 
 # Popular motoristas
 
-for _ in range(50):
+for _ in range(100):
     motorista_empresa=random.choice(['Sim', 'Não'])
     
     if motorista_empresa == 'Sim':
