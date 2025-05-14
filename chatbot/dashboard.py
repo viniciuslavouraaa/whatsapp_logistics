@@ -1,3 +1,5 @@
+# dashboard_empresas.py - Visualização ampla e espaçosa para análise de cargas
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px

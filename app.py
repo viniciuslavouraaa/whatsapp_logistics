@@ -1,5 +1,5 @@
 import streamlit as st
-from chatbot import dashboard, dashboard_motoristas, clientFlow , database # ajuste os caminhos se estiverem diferentes
+from chatbot import dashboard, dashboard_motoristas, clientFlow # ajuste os caminhos se estiverem diferentes
 
 st.set_page_config(page_title='WhatsApp Logistics', layout='wide')
 st.sidebar.title('🔀 Navegação')
