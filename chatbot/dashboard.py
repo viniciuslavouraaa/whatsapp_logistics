@@ -10,7 +10,7 @@ def show():
     df = pd.read_sql('SELECT * FROM empresas', con=create_engine('sqlite:///database/empresa.db'))
 
     # Estilo visual
-    st.set_page_config(page_title='Dashboard Empresas', layout='wide')
+    #st.set_page_config(page_title='Dashboard Empresas', layout='wide')
     st.markdown('''
         <style>
             .card {
