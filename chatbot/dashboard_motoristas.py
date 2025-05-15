@@ -10,7 +10,7 @@ def show():
     df = pd.read_sql('SELECT * FROM motoristas', con=engine)
 
     # Estilo visual
-    st.set_page_config(page_title='Dashboard Motoristas', layout='wide')
+    #st.set_page_config(page_title='Dashboard Motoristas', layout='wide')
     st.markdown('''
         <style>
             .card {
