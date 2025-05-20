@@ -9,12 +9,12 @@ st.sidebar.title("🚚 Navegação")
 opcao = st.sidebar.selectbox("Selecione o módulo:", [
     "📦 Dashboard de Empresas",
     "🚛 Dashboard de Motoristas",
-    "💬 Chat (ClientFlow)"
+    "💬 Cadastro"
 ])
 
 if opcao == "📦 Dashboard de Empresas":
     dashboard.show()
 elif opcao == "🚛 Dashboard de Motoristas":
     dashboard_motoristas.show()
-elif opcao == "💬 Chat (ClientFlow)":
+elif opcao == "💬 Cadastro":
     clientFlow.show()
