@@ -222,6 +222,7 @@ def show():
         st.markdown('---')
 
         # Rotas mais comuns
+        """
         st.subheader('🛣️ Rotas Mais Comuns')
         df['Rota'] = df['cidade_origem'] + ' → ' + df['cidade_destino']
         rotas_comuns = df['Rota'].value_counts().head(5).reset_index()
@@ -237,7 +238,7 @@ def show():
         st.plotly_chart(fig_rotas, use_container_width=True)
 
         st.markdown('---')
-
+        """
         # Download
         st.subheader('💾 Exportar Dados Filtrados')
         st.download_button('📥 Baixar CSV', df.to_csv(index=False).encode('utf-8'), 'dados_filtrados.csv', 'text/csv')

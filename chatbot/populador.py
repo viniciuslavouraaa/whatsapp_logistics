@@ -62,7 +62,7 @@ data_carregamento = date.today() - timedelta(days=random.randint(1, 30))
 data_descarregamento = data_carregamento + timedelta(days=random.randint(1, 5))
 
 # Popular empresas
-for _ in range(100):
+for _ in range(500):
     salvar_empresa(
         nome_empresa=fake.company(),
         cnpj_empresa=fake.cnpj(),
@@ -86,7 +86,7 @@ for _ in range(100):
 
 # Popular motoristas
 
-for _ in range(100):
+for _ in range(500):
     motorista_empresa=random.choice(['Sim', 'Não'])
     
     if motorista_empresa == 'Sim':
