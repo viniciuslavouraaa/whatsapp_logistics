@@ -4,8 +4,7 @@ import plotly.express as px
 from sqlalchemy import create_engine
 from datetime import date
 import requests
-import locale # Importar formatação do Real R$00,00
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
 
 def show():
     # Conexão com banco
@@ -66,12 +65,15 @@ def show():
             """, unsafe_allow_html=True)
 
         with col2:
+            valor_medio = df['valor_frete'].mean()
+            valor_formatado = f"R$ {valor_medio:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             st.markdown(f"""
                 <div class='card'>
                     <div class='metric-title'>Valor Médio do Frete (R$)</div>
-                    <div class='metric-value'>{locale.currency(df['valor_frete'].mean(), grouping=True)}</div>
+                    <div class='metric-value'>{valor_formatado}</div>
                 </div>
             """, unsafe_allow_html=True)
+
 
         with col3:
             st.markdown(f"""
@@ -85,12 +87,15 @@ def show():
         col4, col5 = st.columns(2)
 
         with col4:
+            total_fretes = df["valor_frete"].sum()
+            total_formatado = f"R$ {total_fretes:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             st.markdown(f"""
                 <div class='card'>
                     <div class='metric-title'>💰 Total em Fretes (R$)</div>
-                    <div class='metric-value'>{locale.currency(df["valor_frete"].sum(), grouping=True)}</div>
+                    <div class='metric-value'>{total_formatado}</div>
                 </div>
             """, unsafe_allow_html=True)
+
 
         with col5:
             rota_mais_cara = df[df['valor_frete'] == df['valor_frete'].max()]
