@@ -100,7 +100,7 @@ def show():
         with col5:
             rota_mais_cara = df[df['valor_frete'] == df['valor_frete'].max()]
             rota = f"{rota_mais_cara['cidade_origem'].values[0]} → {rota_mais_cara['cidade_destino'].values[0]}"
-            valor = f"{rota_mais_cara['valor_frete'].values[0]:,.2f}"
+            valor = f"R$ {rota_mais_cara['valor_frete'].values[0]:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             st.markdown(f"""
                 <div class='card'>
                     <div class='metric-title'>🏆 Frete Mais Caro</div>
