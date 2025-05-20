@@ -135,16 +135,35 @@ def show():
 
         # Tipos de carga
         st.subheader('📦 Tipos de Carga mais Comuns')
-        tipos = df['tipo_carga'].value_counts().head(10).reset_index()
+        tipos = df['tipo_carga'].value_counts().head(5).reset_index()
         tipos.columns = ['Tipo de Carga', 'Total']
-        fig_pie = px.pie(tipos, names='Tipo de Carga', values='Total', title='Top 10 Tipos de Carga')
-        st.plotly_chart(fig_pie, use_container_width=True)
+
+        cores_personalizadas = [
+            '#0468BF', '#7EC6F2', '#F22E2E', '#F2A2A2',
+            '#80F29D'
+        ]
+
+        fig_bar_tipos = px.bar(
+            tipos,
+            x='Total',
+            y='Tipo de Carga',
+            orientation='h',
+            color='Tipo de Carga',  # color pela categoria
+            color_discrete_sequence=cores_personalizadas,
+            title='Top 5 Tipos de Carga'
+        )
+
+        fig_bar_tipos.update_layout(
+            yaxis=dict(),
+            showlegend=False
+        )
+        st.plotly_chart(fig_bar_tipos, use_container_width=True)
 
         st.markdown('---')
 
         # Cargas por estado
         st.subheader('📍 Cargas por Estado de Destino')
-        cargas_estado = df['estado_destino'].value_counts().reset_index()
+        cargas_estado = df['estado_destino'].value_counts().head(10).reset_index()
         cargas_estado.columns = ['Estado', 'Quantidade']
         fig_bar = px.bar(cargas_estado, x='Estado', y='Quantidade', color='Estado', title='Cargas por Estado')
         st.plotly_chart(fig_bar, use_container_width=True)
@@ -152,6 +171,7 @@ def show():
         st.markdown('---')
 
         # Mapa
+        """
         st.subheader('🗺️ Mapa de Cargas por Estado')
         url_geojson = 'https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson'
         geojson = requests.get(url_geojson).json()
@@ -177,7 +197,7 @@ def show():
         )
         fig_mapa.update_geos(fitbounds='locations', visible=False)
         st.plotly_chart(fig_mapa, use_container_width=True)
-
+        """
         st.markdown('---')
 
         # Formas de pagamento
@@ -191,10 +211,11 @@ def show():
 
         # Implementos
         st.subheader('🔧 Implementos Mais Utilizados')
-        implementos = df['implemento'].value_counts().head(10).reset_index()
+        implementos = df['implemento'].value_counts().head(5).reset_index()
         implementos.columns = ['Implemento', 'Quantidade']
         fig_impl = px.bar(implementos, x='Quantidade', y='Implemento', orientation='h', color='Quantidade',
-                        title='Top 10 Implementos mais usados')
+        color_continuous_scale=['#93C5FD','#3B82F6','#1E3A8A'],
+        title='Top 5 Implementos')
         fig_impl.update_layout(yaxis=dict(autorange='reversed'))
         st.plotly_chart(fig_impl, use_container_width=True)
 
@@ -203,16 +224,19 @@ def show():
         # Rotas mais comuns
         st.subheader('🛣️ Rotas Mais Comuns')
         df['Rota'] = df['cidade_origem'] + ' → ' + df['cidade_destino']
-        rotas_comuns = df['Rota'].value_counts().head(10).reset_index()
+        rotas_comuns = df['Rota'].value_counts().head(5).reset_index()
         rotas_comuns.columns = ['Rota', 'Quantidade']
+
+        # Defina uma lista de cores para as 5 rotas
+        cores_rotas = ['#93C5FD', '#3B82F6', '#1E3A8A', '#64B5F6', '#42A5F5'] # Exemplo de 5 cores
+
         fig_rotas = px.bar(rotas_comuns, x='Quantidade', y='Rota', orientation='h', color='Quantidade',
-                        title='Top 10 Rotas Mais Atendidas')
+        color_continuous_scale=['#93C5FD','#3B82F6','#1E3A8A'],
+        title='Top 5 Rotas Mais Atendidas')
         fig_rotas.update_layout(yaxis=dict(autorange='reversed'))
         st.plotly_chart(fig_rotas, use_container_width=True)
 
         st.markdown('---')
-
-
 
         # Download
         st.subheader('💾 Exportar Dados Filtrados')
