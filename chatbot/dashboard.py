@@ -4,6 +4,8 @@ import plotly.express as px
 from sqlalchemy import create_engine
 from datetime import date
 import requests
+import locale # Importar formatação do Real R$00,00
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 def show():
     # Conexão com banco
@@ -67,7 +69,7 @@ def show():
             st.markdown(f"""
                 <div class='card'>
                     <div class='metric-title'>Valor Médio do Frete (R$)</div>
-                    <div class='metric-value'>{df['valor_frete'].mean():.2f}</div>
+                    <div class='metric-value'>{locale.currency(df['valor_frete'].mean(), grouping=True)}</div>
                 </div>
             """, unsafe_allow_html=True)
 
@@ -78,17 +80,39 @@ def show():
                     <div class='metric-value'>{df['estado_destino'].nunique()}</div>
                 </div>
             """, unsafe_allow_html=True)
+            
+        # Total de fretes e frete mais caro (com design unificado)
+        col4, col5 = st.columns(2)
 
+        with col4:
+            st.markdown(f"""
+                <div class='card'>
+                    <div class='metric-title'>💰 Total em Fretes (R$)</div>
+                    <div class='metric-value'>{locale.currency(df["valor_frete"].sum(), grouping=True)}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+        with col5:
+            rota_mais_cara = df[df['valor_frete'] == df['valor_frete'].max()]
+            rota = f"{rota_mais_cara['cidade_origem'].values[0]} → {rota_mais_cara['cidade_destino'].values[0]}"
+            valor = f"{rota_mais_cara['valor_frete'].values[0]:,.2f}"
+            st.markdown(f"""
+                <div class='card'>
+                    <div class='metric-title'>🏆 Frete Mais Caro</div>
+                    <div class='metric-value'>{rota} ({valor})</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
         st.markdown('---')
 
         # Top 5 maiores fretes
-        st.subheader('💰 Top 5 Maiores Fretes por Rota')
+        st.subheader('💰 5 Maiores Fretes por Rota')
         top_fretes = df.copy()
         top_fretes['Rota'] = top_fretes['cidade_origem'] + '→' + top_fretes['cidade_destino']
         top_fretes = top_fretes.sort_values(by='valor_frete', ascending=False).head(5)
         fig_top = px.bar(top_fretes, x='valor_frete', y='Rota', orientation='h', color='valor_frete',
-                        color_continuous_scale='blues',
-                        labels={'valor_frete': 'Valor do Frete (R$)', 'Rota': 'Rota'})
+        color_continuous_scale=['#93C5FD','#3B82F6','#1E3A8A'],  # azul escuro → azul médio → azul claro forte
+        labels={'valor_frete': 'Valor do Frete (R$)', 'Rota': 'Rota'})
         fig_top.update_layout(yaxis=dict(autorange='reversed'))
         st.plotly_chart(fig_top, use_container_width=True)
 
@@ -183,16 +207,7 @@ def show():
 
         st.markdown('---')
 
-        # Total de fretes e frete mais caro
-        col4, col5 = st.columns(2)
-        with col4:
-            st.metric('💰 Total em Fretes (R$)', f'{df["valor_frete"].sum():,.2f}')
 
-        with col5:
-            rota_mais_cara = df[df['valor_frete'] == df['valor_frete'].max()]
-            st.metric('🏆 Frete Mais Caro', f"{rota_mais_cara['cidade_origem'].values[0]} → {rota_mais_cara['cidade_destino'].values[0]} ({rota_mais_cara['valor_frete'].values[0]:,.2f})")
-
-        st.markdown('---')
 
         # Download
         st.subheader('💾 Exportar Dados Filtrados')
