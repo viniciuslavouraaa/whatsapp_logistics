@@ -55,8 +55,12 @@ def show():
         df = df[df['fretebras'] == possui_fretebras]
 
     # Indicadores principais
-    col1, col2, col3 = st.columns(3)
+    st.markdown('## 📊 Indicadores Gerais')
 
+    col1,col2 = st.columns(2)
+    col3, col4, col5 = st.columns(3)
+
+    # Total de motoristas
     with col1:
         st.markdown(f"""
             <div class='card'>
@@ -65,6 +69,7 @@ def show():
             </div>
         """, unsafe_allow_html=True)
 
+    # % Vinculados a empresas
     with col2:
         perc_vinculados = df[df['motorista_empresa'] == 'Sim'].shape[0] / len(df) * 100 if len(df) > 0 else 0
         st.markdown(f"""
@@ -74,7 +79,29 @@ def show():
             </div>
         """, unsafe_allow_html=True)
 
+    # % com documentação completa
     with col3:
+        completos = df[(df['antt'] == 'Sim') & (df['fretebras'] == 'Sim') & (df['chave_pix'].notnull())].shape[0]
+        percent_completos = completos / len(df) * 100 if len(df) > 0 else 0
+        st.markdown(f"""
+            <div class='card'>
+                <div class='metric-title'>Documentação Completa (%)</div>
+                <div class='metric-value'>{percent_completos:.1f}%</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Quantos não têm nenhum documento
+    with col4:
+        sem_doc = df[(df['antt'] == 'Não') & (df['fretebras'] == 'Não')].shape[0]
+        st.markdown(f"""
+            <div class='card'>
+                <div class='metric-title'>Sem Documentação Obrigatória</div>
+                <div class='metric-value'>{sem_doc}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # Com ao menos 1 documento
+    with col5:
         docs_validos = df[(df['antt'] == 'Sim') | (df['fretebras'] == 'Sim')].shape[0]
         st.markdown(f"""
             <div class='card'>
@@ -83,22 +110,7 @@ def show():
             </div>
         """, unsafe_allow_html=True)
 
-    # Indicadores de Qualidade de Cadastro
-    st.markdown('## 📋 Indicadores de Qualidade de Cadastro')
-    col4, col5, col6 = st.columns(3)
-
-    with col4:
-        completos = df[(df['antt'] == 'Sim') & (df['fretebras'] == 'Sim') & (df['chave_pix'].notnull())].shape[0]
-        st.metric('Documentação Completa (%)', f'{completos / len(df) * 100:.1f}%' if len(df) > 0 else '0%')
-
-    with col5:
-        sem_banco = df[df['nome_banco'].isnull()].shape[0]
-        st.metric('Sem Banco Definido', sem_banco)
-
-    with col6:
-        pix_ativos = df[df['chave_pix'].notnull()].shape[0]
-        st.metric('Possuem Chave Pix', pix_ativos)
-
+        
     # Análise de Documentação
     st.markdown('## 🗃️ Análise de Documentação')
     doc_analysis = {
@@ -107,24 +119,68 @@ def show():
         'Ambos': df[(df['antt'] == 'Sim') & (df['fretebras'] == 'Sim')].shape[0],
         'Nenhum': df[(df['antt'] == 'Não') & (df['fretebras'] == 'Não')].shape[0]
     }
-    fig_doc = px.bar(x=list(doc_analysis.keys()), y=list(doc_analysis.values()), color=list(doc_analysis.keys()), title='Distribuição de Documentos')
+
+    fig_doc = px.bar(
+        x=list(doc_analysis.keys()),
+        y=list(doc_analysis.values()),
+        color=list(doc_analysis.keys()),
+        title='Distribuição de Documentos',
+        labels={'x': 'Documentos', 'y': 'Quantidade'}
+    )
+
+    fig_doc.update_layout(legend_title_text=None)
     st.plotly_chart(fig_doc, use_container_width=True)
 
     # Tabela com pendências
+    """
     st.markdown('### Motoristas Sem Documentação Obrigatória')
     st.dataframe(df[(df['antt'] == 'Não') & (df['fretebras'] == 'Não')][['nome_caminhoneiro', 'cpf_caminhoneiro', 'telefone_caminhoneiro']])
-
+    """
     # Bancos
     st.markdown('## 💸 Bancos e Formas de Pagamento')
-    bancos = df['nome_banco'].value_counts().head(10).reset_index()
+
+    bancos = df['nome_banco'].value_counts().head(5).reset_index()
     bancos.columns = ['Banco', 'Quantidade']
-    fig_bancos = px.pie(bancos, names='Banco', values='Quantidade', title='Top 10 Bancos mais usados')
+
+    # Paleta personalizada
+    cores_personalizadas = ['#0468BF', '#7EC6F2', '#F22E2E', '#F2A2A2', '#80F29D',
+                            '#FFD700', '#FFA500', '#A569BD', '#5D6D7E', '#C0392B']  # extras para completar 10
+
+    fig_bancos = px.bar(
+        bancos,
+        x='Quantidade',
+        y='Banco',
+        orientation='h',
+        color='Banco',
+        title='Top 10 Bancos mais usados',
+        color_discrete_sequence=cores_personalizadas
+    )
+
+    fig_bancos.update_layout(
+        yaxis=dict(),
+        xaxis_title='Quantidade',
+        yaxis_title='Banco'
+    )
+
     st.plotly_chart(fig_bancos, use_container_width=True)
 
     # Contas
+    st.markdown('## 💳 Distribuição por Tipo de Conta')
+
     tipos_conta = df['tipo_conta'].value_counts().reset_index()
     tipos_conta.columns = ['Tipo de Conta', 'Quantidade']
-    fig_contas = px.bar(tipos_conta, x='Tipo de Conta', y='Quantidade', color='Tipo de Conta', title='Distribuição de Contas')
+
+    # Cores personalizadas
+    cores_conta = ['#0468BF', '#F22E2E']
+
+    fig_contas = px.pie(
+        tipos_conta,
+        names='Tipo de Conta',
+        values='Quantidade',
+        title='Distribuição de Contas',
+        color_discrete_sequence=cores_conta
+    )
+
     st.plotly_chart(fig_contas, use_container_width=True)
 
     # Estados com mais motoristas (se houver estado)
@@ -147,18 +203,31 @@ def show():
         st.metric('Cadastros nos últimos 30 dias', ultimos_30)
 
     # Alertas
+    """
     st.markdown('## ⚠️ Alertas Gerenciais')
     alertas = df[(df['nome_banco'].isnull()) | (df['motorista_empresa'] == 'Não') | ((df['antt'] == 'Não') & (df['fretebras'] == 'Não'))]
     st.dataframe(alertas[['nome_caminhoneiro', 'cpf_caminhoneiro', 'nome_banco', 'motorista_empresa', 'antt', 'fretebras']])
-
-    # Comparações com empresas (se houver colunas de cnpj_empresa)
+    """
+    # Comparações com empresas: empresas com mais motoristas vinculados
     if 'cnpj_empresa' in df.columns:
-        st.markdown('## 🧮 Comparações com Empresas')
-        empresas_sem_doc = df[(df['antt'] == 'Não') & (df['fretebras'] == 'Não')].groupby('nome_empresa').size().reset_index(name='Pendentes')
-        empresas_sem_doc = empresas_sem_doc[empresas_sem_doc['nome_empresa'].notnull()].sort_values(by='Pendentes', ascending=False).head(10)
-        fig_emp = px.bar(empresas_sem_doc, x='Pendentes', y='nome_empresa', orientation='h', title='Empresas com Mais Motoristas Sem Documentos')
+        st.markdown('## 🧮 Empresas com Mais Motoristas Vinculados')
+        
+        vinculados = df[df['motorista_empresa'] == 'Sim']
+        empresas_vinculadas = vinculados.groupby('nome_empresa').size().reset_index(name='Motoristas')
+        empresas_vinculadas = empresas_vinculadas[empresas_vinculadas['nome_empresa'].notnull()].sort_values(by='Motoristas', ascending=False).head(10)
+        
+        fig_emp = px.bar(
+            empresas_vinculadas,
+            x='Motoristas',
+            y='nome_empresa',
+            orientation='h',
+            title='Top5 Empresas com Mais Motoristas',
+            color='Motoristas',
+            color_continuous_scale=['#93C5FD', '#3B82F6', '#1E3A8A']
+        )
         fig_emp.update_layout(yaxis=dict(autorange='reversed'))
         st.plotly_chart(fig_emp, use_container_width=True)
+
 
     # Segmentação para ações
     st.markdown('## 🎯 Segmentação Estratégica')
